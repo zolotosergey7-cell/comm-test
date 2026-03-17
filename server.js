@@ -93,7 +93,10 @@ app.post("/api/session/create", async (req, res) => {
   scheduleSessionCleanup(sessionId);
 
   // Генерируем QR-код (ссылка на страницу участника)
-  const participantUrl = `http://localhost:${PORT}/participant/?s=${sessionId}`;
+  const BASE_URL = process.env.RAILWAY_STATIC_URL
+  ? `https://${process.env.RAILWAY_STATIC_URL}`
+  : `http://localhost:${PORT}`;
+const participantUrl = `${BASE_URL}/participant/?s=${sessionId}`;
   const qrDataUrl = await QRCode.toDataURL(participantUrl, { width: 300 });
 
   console.log("Создана сессия:", sessionId, "| Группа:", session.groupName);

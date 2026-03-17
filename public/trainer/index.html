@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тренер — Стили коммуникации</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 16px;
+      padding: 20px 24px;
+      color: #fff;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 { font-size: 20px; font-weight: 800; }
+    .header p  { font-size: 13px; opacity: .85; margin-top: 4px; }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .card h2 {
+      font-size: 16px; font-weight: 700;
+      color: #111827; margin-bottom: 16px;
+    }
+
+    /* Кнопки */
+    .btn {
+      padding: 12px 20px; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary  { background: #6366f1; color: #fff; }
+    .btn-danger   { background: #ef4444; color: #fff; }
+    .btn-green    { background: #22c55e; color: #fff; }
+    .btn-gray     { background: #e5e7eb; color: #374151; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* Поля ввода */
+    label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+    input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid #d1d5db;
+      border-radius: 10px; font-size: 15px; outline: none; margin-bottom: 12px;
+    }
+    input:focus { border-color: #6366f1; }
+
+    /* Счётчики */
+    .counters {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px; margin-bottom: 0;
+    }
+    .counter-box {
+      background: #f9fafb; border-radius: 12px;
+      padding: 14px; text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+    .counter-num  { font-size: 28px; font-weight: 800; color: #6366f1; }
+    .counter-label { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+    /* Прогресс */
+    .progress-track {
+      height: 10px; background: #e5e7eb; border-radius: 8px;
+      overflow: hidden; margin-top: 14px;
+    }
+    .progress-fill {
+      height: 100%; background: #6366f1; border-radius: 8px;
+      transition: width .4s ease;
+    }
+
+    /* QR блок */
+    .qr-block { text-align: center; }
+    .qr-block img { width: 200px; height: 200px; border-radius: 12px; margin-bottom: 12px; }
+    .qr-url {
+      font-size: 13px; color: #6366f1; word-break: break-all;
+      background: #eef2ff; padding: 8px 12px; border-radius: 8px;
+      margin-bottom: 12px; display: block;
+    }
+    .qr-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+    /* Список участников */
+    .participant-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: 10px;
+      margin-bottom: 8px; border: 1px solid #e5e7eb;
+      background: #f9fafb; transition: background .3s;
+    }
+    .participant-row.done { background: #f0fdf4; border-color: #bbf7d0; }
+    .participant-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .participant-info { flex: 1; }
+    .participant-name { font-size: 14px; font-weight: 700; color: #111827; }
+    .participant-role { font-size: 12px; color: #6b7280; }
+    .participant-style {
+      font-size: 13px; font-weight: 700; padding: 4px 10px;
+      border-radius: 20px; background: #f3f4f6; color: #374151;
+    }
+    .status-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #d1d5db; flex-shrink: 0;
+    }
+    .status-dot.done { background: #22c55e; }
+
+    /* Диаграмма стилей */
+    .style-bars { display: flex; flex-direction: column; gap: 12px; }
+    .style-bar-row {}
+    .style-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 14px; font-weight: 600; margin-bottom: 5px;
+    }
+    .style-bar-track {
+      height: 20px; background: #e5e7eb; border-radius: 8px; overflow: hidden;
+    }
+    .style-bar-fill {
+      height: 100%; border-radius: 8px; transition: width .6s ease;
+      display: flex; align-items: center; padding-left: 8px;
+      font-size: 12px; font-weight: 700; color: #fff;
+    }
+
+    /* Карта антиподов */
+    .antipode-pair {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 10px;
+      background: #f9fafb; border: 1px solid #e5e7eb;
+      margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .antipode-name {
+      font-size: 14px; font-weight: 700; color: #111827;
+      padding: 4px 10px; border-radius: 20px;
+    }
+    .antipode-arrow { font-size: 18px; color: #9ca3af; }
+
+    /* Режим презентации */
+    .presentation-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: #1e1b4b;
+      z-index: 1000;
+      padding: 40px;
+      overflow-y: auto;
+    }
+    .presentation-overlay.active { display: block; }
+    .pres-title {
+      color: #fff; font-size: 32px; font-weight: 800;
+      text-align: center; margin-bottom: 32px;
+    }
+    .pres-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 24px; max-width: 1000px; margin: 0 auto;
+    }
+    .pres-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 24px;
+    }
+    .pres-card h3 { color: #c7d2fe; font-size: 16px; margin-bottom: 16px; }
+    .pres-style-row {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 12px;
+    }
+    .pres-style-label { color: #fff; font-size: 18px; font-weight: 700; flex: 1; }
+    .pres-style-count {
+      color: #fff; font-size: 24px; font-weight: 800; width: 40px; text-align: right;
+    }
+    .pres-bar-track {
+      height: 16px; background: rgba(255,255,255,0.15);
+      border-radius: 8px; overflow: hidden; flex: 2;
+    }
+    .pres-bar-fill { height: 100%; border-radius: 8px; transition: width .6s; }
+    .pres-participant {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .pres-p-name { color: #fff; font-size: 16px; font-weight: 700; flex: 1; }
+    .pres-p-style { font-size: 14px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .btn-close-pres {
+      position: fixed; top: 20px; right: 20px;
+      background: rgba(255,255,255,0.2); color: #fff;
+      border: none; border-radius: 10px; padding: 10px 16px;
+      font-size: 14px; font-weight: 700; cursor: pointer; z-index: 1001;
+    }
+
+    .empty-msg { color: #9ca3af; font-size: 14px; text-align: center; padding: 20px 0; }
+
+    /* Экраны */
+    .screen { display: none; }
+    .screen.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- ─── ЭКРАН 1: Создание сессии ──────────────────────── -->
+<div class="screen active" id="screen-create">
+  <div class="header">
+    <div>
+      <h1>🧭 Панель тренера</h1>
+      <p>Создай сессию и поделись QR-кодом с группой</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Новая сессия</h2>
+    <label for="inp-group">Название группы</label>
+    <input id="inp-group" type="text" placeholder="Например: Команда продаж" value="Моя группа" />
+    <label for="inp-pin">PIN тренера <span style="font-weight:400;color:#9ca3af">(необязательно)</span></label>
+    <input id="inp-pin" type="text" placeholder="4 цифры" maxlength="4" />
+    <button class="btn btn-primary" id="btn-create" style="width:100%">
+      Создать сессию →
+    </button>
+  </div>
+</div>
+
+<!-- ─── ЭКРАН 2: Дашборд ───────────────────────────────── -->
+<div class="screen" id="screen-dashboard">
+
+  <div class="header">
+    <div>
+      <h1 id="dash-title">Группа</h1>
+      <p id="dash-session-id">Сессия: —</p>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap">
+      <button class="btn btn-green" id="btn-present">📊 На экран</button>
+      <button class="btn btn-danger" id="btn-end">Завершить</button>
+    </div>
+  </div>
+
+  <!-- Счётчики -->
+  <div class="card">
+    <h2>Статус группы</h2>
+    <div class="counters">
+      <div class="counter-box">
+        <div class="counter-num" id="cnt-registered">0</div>
+        <div class="counter-label">Зарегистрировались</div>
+      </div>
+      <div class="counter-box">
+        <div class="counter-num" id="cnt-completed">0</div>
+        <div class="counter-label">Прошли тест</div>
+      </div>
+      <div class="counter-box">
+        <div class="counter-num" id="cnt-max">15</div>
+        <div class="counter-label">Мест всего</div>
+      </div>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="dash-progress" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- QR-код -->
+  <div class="card">
+    <h2>QR-код для участников</h2>
+    <div class="qr-block">
+      <img id="qr-img" src="" alt="QR код" />
+      <a class="qr-url" id="qr-url" href="#" target="_blank"></a>
+      <div class="qr-btns">
+        <button class="btn btn-gray" id="btn-download-qr">⬇ Скачать QR</button>
+        <button class="btn btn-gray" id="btn-copy-link">🔗 Скопировать ссылку</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Список участников -->
+  <div class="card">
+    <h2>Участники</h2>
+    <div id="participants-list">
+      <div class="empty-msg">Ожидаем участников...</div>
+    </div>
+  </div>
+
+  <!-- Диаграмма стилей -->
+  <div class="card" id="card-chart" style="display:none">
+    <h2>Распределение стилей</h2>
+    <div class="style-bars" id="style-bars"></div>
+  </div>
+
+  <!-- Карта антиподов -->
+  <div class="card" id="card-antipodes" style="display:none">
+    <h2>Пары для ролевых игр</h2>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:14px">
+      Участники с противоположными стилями — идеальные пары для упражнения «Антиподы»
+    </p>
+    <div id="antipodes-list"></div>
+  </div>
+
+</div>
+
+<!-- ─── Режим презентации ──────────────────────────────── -->
+<div class="presentation-overlay" id="presentation">
+  <button class="btn-close-pres" id="btn-close-pres">✕ Закрыть</button>
+  <div class="pres-title" id="pres-title">Стили коммуникации группы</div>
+  <div class="pres-grid">
+    <div class="pres-card">
+      <h3>📊 Распределение стилей</h3>
+      <div id="pres-bars"></div>
+    </div>
+    <div class="pres-card">
+      <h3>👥 Участники</h3>
+      <div id="pres-participants"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Состояние ─────────────────────────────────────────────
+let sessionId      = null;
+let qrDataUrl      = null;
+let participantUrl = null;
+let participants   = [];   // локальный список участников
+let styles         = {};
+
+const STYLE_COLORS = {
+  A: "#3b82f6", D: "#ef4444", E: "#f59e0b", P: "#22c55e"
+};
+const STYLE_LABELS = {
+  A: "🔵 Аналитик", D: "🔴 Драйвер", E: "🟡 Экспрессив", P: "🟢 Эмпат"
+};
+const ANTIPODES = { A: "E", E: "A", D: "P", P: "D" };
+
+// ── Вспомогательные ──────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// ── Загрузить описания стилей ─────────────────────────────
+async function loadStyles() {
+  const res = await fetch("/api/styles");
+  styles = await res.json();
+}
+loadStyles();
+
+// ── ЭКРАН 1: Создание сессии ──────────────────────────────
+document.getElementById("btn-create").addEventListener("click", async () => {
+  const groupName = document.getElementById("inp-group").value.trim() || "Группа";
+  const pin       = document.getElementById("inp-pin").value.trim();
+  const btn       = document.getElementById("btn-create");
+
+  btn.disabled    = true;
+  btn.textContent = "Создаём...";
+
+  try {
+    const res  = await fetch("/api/session/create", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ groupName, pin })
+    });
+    const data = await res.json();
+
+    sessionId      = data.sessionId;
+    qrDataUrl      = data.qrDataUrl;
+    participantUrl = data.participantUrl;
+
+    initDashboard(groupName);
+    connectSocket();
+    showScreen("screen-dashboard");
+
+  } catch (e) {
+    alert("Ошибка создания сессии. Проверь что сервер запущен.");
+    btn.disabled    = false;
+    btn.textContent = "Создать сессию →";
+  }
+});
+
+// ── Инициализация дашборда ────────────────────────────────
+function initDashboard(groupName) {
+  document.getElementById("dash-title").textContent      = groupName;
+  document.getElementById("dash-session-id").textContent = "Сессия: " + sessionId;
+  document.getElementById("qr-img").src                  = qrDataUrl;
+  document.getElementById("qr-url").textContent          = participantUrl;
+  document.getElementById("qr-url").href                 = participantUrl;
+
+  // Скачать QR
+  document.getElementById("btn-download-qr").addEventListener("click", () => {
+    const a  = document.createElement("a");
+    a.href   = qrDataUrl;
+    a.download = "qr-" + sessionId + ".png";
+    a.click();
+  });
+
+  // Скопировать ссылку
+  document.getElementById("btn-copy-link").addEventListener("click", () => {
+    navigator.clipboard.writeText(participantUrl).then(() => {
+      const btn = document.getElementById("btn-copy-link");
+      btn.textContent = "✓ Скопировано!";
+      setTimeout(() => btn.textContent = "🔗 Скопировать ссылку", 2000);
+    });
+  });
+}
+
+// ── WebSocket ─────────────────────────────────────────────
+function connectSocket() {
+  const socket = io();
+
+  socket.on("connect", () => {
+    socket.emit("joinSession", { sessionId });
+  });
+
+  // Новый участник зарегистрировался
+  socket.on("participantRegistered", (p) => {
+    // Добавляем если ещё нет
+    if (!participants.find(x => x.id === p.id)) {
+      participants.push({ ...p, completed: false });
+    }
+    updateDashboard();
+  });
+
+  // Участник прошёл тест
+  socket.on("participantCompleted", (p) => {
+    const existing = participants.find(x => x.id === p.id);
+    if (existing) {
+      Object.assign(existing, p, { completed: true });
+    } else {
+      participants.push({ ...p, completed: true });
+    }
+    updateDashboard();
+  });
+}
+
+// ── Обновление дашборда ───────────────────────────────────
+function updateDashboard() {
+  const total     = participants.length;
+  const completed = participants.filter(p => p.completed).length;
+  const pct       = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  // Счётчики
+  document.getElementById("cnt-registered").textContent = total;
+  document.getElementById("cnt-completed").textContent  = completed;
+  document.getElementById("dash-progress").style.width  = pct + "%";
+
+  // Список участников
+  renderParticipantsList();
+
+  // Диаграмма и антиподы — только если есть завершившие
+  if (completed > 0) {
+    document.getElementById("card-chart").style.display    = "block";
+    document.getElementById("card-antipodes").style.display = "block";
+    renderStyleBars();
+    renderAntipodes();
+  }
+}
+
+// ── Список участников ─────────────────────────────────────
+function renderParticipantsList() {
+  const el = document.getElementById("participants-list");
+
+  if (participants.length === 0) {
+    el.innerHTML = '<div class="empty-msg">Ожидаем участников...</div>';
+    return;
+  }
+
+  el.innerHTML = participants.map(p => {
+    const color = p.primaryStyle ? STYLE_COLORS[p.primaryStyle] : "#9ca3af";
+    const initials = p.name.charAt(0).toUpperCase();
+    const styleLabel = p.primaryStyle ? STYLE_LABELS[p.primaryStyle] : "—";
+    return `
+      <div class="participant-row ${p.completed ? "done" : ""}">
+        <div class="participant-avatar" style="background:${color}">${initials}</div>
+        <div class="participant-info">
+          <div class="participant-name">${p.name}</div>
+          <div class="participant-role">${p.role || "Участник"}</div>
+        </div>
+        <div class="participant-style" style="color:${color}">${styleLabel}</div>
+        <div class="status-dot ${p.completed ? "done" : ""}"></div>
+      </div>`;
+  }).join("");
+}
+
+// ── Диаграмма стилей ──────────────────────────────────────
+function renderStyleBars() {
+  const done   = participants.filter(p => p.completed);
+  const counts = { A: 0, D: 0, E: 0, P: 0 };
+  done.forEach(p => { if (p.primaryStyle) counts[p.primaryStyle]++; });
+
+  const max = Math.max(...Object.values(counts), 1);
+  const el  = document.getElementById("style-bars");
+
+  el.innerHTML = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([code, count]) => {
+      const pct   = Math.round((count / max) * 100);
+      const color = STYLE_COLORS[code];
+      const label = STYLE_LABELS[code];
+      return `
+        <div class="style-bar-row">
+          <div class="style-bar-label">
+            <span>${label}</span>
+            <span style="color:${color}">${count} чел.</span>
+          </div>
+          <div class="style-bar-track">
+            <div class="style-bar-fill" style="width:${pct}%; background:${color}">
+              ${count > 0 ? count : ""}
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+}
+
+// ── Карта антиподов ───────────────────────────────────────
+function renderAntipodes() {
+  const done = participants.filter(p => p.completed && p.primaryStyle);
+  const used = new Set();
+  const pairs = [];
+
+  done.forEach(p => {
+    if (used.has(p.id)) return;
+    const antipodeStyle = ANTIPODES[p.primaryStyle];
+    const partner = done.find(x =>
+      !used.has(x.id) && x.id !== p.id && x.primaryStyle === antipodeStyle
+    );
+    if (partner) {
+      pairs.push([p, partner]);
+      used.add(p.id);
+      used.add(partner.id);
+    }
+  });
+
+  const el = document.getElementById("antipodes-list");
+
+  if (pairs.length === 0) {
+    el.innerHTML = '<div class="empty-msg">Пары появятся когда наберётся больше участников</div>';
+    return;
+  }
+
+  el.innerHTML = pairs.map(([a, b]) => `
+    <div class="antipode-pair">
+      <span style="font-size:20px">${styles[a.primaryStyle]?.emoji || ""}</span>
+      <span style="font-weight:700; color:${STYLE_COLORS[a.primaryStyle]}">${a.name}</span>
+      <span style="font-size:13px; color:#6b7280">${STYLE_LABELS[a.primaryStyle]}</span>
+      <span class="antipode-arrow">↔</span>
+      <span style="font-size:20px">${styles[b.primaryStyle]?.emoji || ""}</span>
+      <span style="font-weight:700; color:${STYLE_COLORS[b.primaryStyle]}">${b.name}</span>
+      <span style="font-size:13px; color:#6b7280">${STYLE_LABELS[b.primaryStyle]}</span>
+    </div>`).join("");
+}
+
+// ── Режим презентации ─────────────────────────────────────
+document.getElementById("btn-present").addEventListener("click", () => {
+  renderPresentation();
+  document.getElementById("presentation").classList.add("active");
+});
+
+document.getElementById("btn-close-pres").addEventListener("click", () => {
+  document.getElementById("presentation").classList.remove("active");
+});
+
+function renderPresentation() {
+  const done   = participants.filter(p => p.completed);
+  const counts = { A: 0, D: 0, E: 0, P: 0 };
+  done.forEach(p => { if (p.primaryStyle) counts[p.primaryStyle]++; });
+  const max = Math.max(...Object.values(counts), 1);
+
+  document.getElementById("pres-title").textContent =
+    document.getElementById("dash-title").textContent + " — стили коммуникации";
+
+  // Полосы
+  document.getElementById("pres-bars").innerHTML = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([code, count]) => {
+      const pct   = Math.round((count / max) * 100);
+      const color = STYLE_COLORS[code];
+      return `
+        <div class="pres-style-row">
+          <div class="pres-style-label">${STYLE_LABELS[code]}</div>
+          <div class="pres-bar-track">
+            <div class="pres-bar-fill" style="width:${pct}%; background:${color}"></div>
+          </div>
+          <div class="pres-style-count">${count}</div>
+        </div>`;
+    }).join("");
+
+  // Участники
+  document.getElementById("pres-participants").innerHTML = done.length === 0
+    ? '<p style="color:rgba(255,255,255,0.5)">Ещё никто не завершил тест</p>'
+    : done.map(p => `
+        <div class="pres-participant">
+          <div class="pres-p-name">${p.name}</div>
+          <div class="pres-p-style" style="background:${STYLE_COLORS[p.primaryStyle]}22; color:${STYLE_COLORS[p.primaryStyle]}">
+            ${STYLE_LABELS[p.primaryStyle]}
+          </div>
+        </div>`).join("");
+}
+
+// ── Завершить сессию ──────────────────────────────────────
+document.getElementById("btn-end").addEventListener("click", () => {
+  if (confirm("Завершить сессию? Все данные будут удалены.")) {
+    participants = [];
+    sessionId    = null;
+    showScreen("screen-create");
+    document.getElementById("btn-create").disabled    = false;
+    document.getElementById("btn-create").textContent = "Создать сессию →";
+  }
+});
+</script>
+</body>
+</html>

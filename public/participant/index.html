@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тест стилей коммуникации</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    h1 { font-size: 22px; font-weight: 800; color: #111827; margin-bottom: 8px; }
+    h2 { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 12px; }
+    p  { font-size: 15px; color: #4b5563; line-height: 1.6; margin-bottom: 12px; }
+
+    /* Шапка */
+    .header {
+      width: 100%;
+      max-width: 480px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 16px;
+      padding: 20px 24px;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .header h1 { color: #fff; font-size: 20px; }
+    .header p  { color: rgba(255,255,255,0.85); font-size: 13px; margin: 4px 0 0; }
+
+    /* Поля ввода */
+    label { display: block; font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 13px 14px; border: 1.5px solid #d1d5db;
+      border-radius: 10px; font-size: 16px; outline: none;
+      transition: border-color .2s;
+    }
+    input:focus { border-color: #6366f1; }
+    .field { margin-bottom: 16px; }
+
+    /* Кнопки */
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 12px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: #6366f1; color: #fff; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Прогресс-бар */
+    .progress-wrap { margin-bottom: 20px; }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: #6b7280; margin-bottom: 6px;
+    }
+    .progress-track {
+      height: 8px; background: #e5e7eb; border-radius: 8px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: #6366f1; border-radius: 8px;
+      transition: width .4s ease;
+    }
+
+    /* Вопрос */
+    .question-text {
+      font-size: 17px; font-weight: 600; color: #111827;
+      line-height: 1.55; margin-bottom: 24px;
+    }
+
+    /* Кнопки ответов */
+    .scale-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .scale-btn {
+      padding: 14px 16px; border-radius: 12px; border: 1.5px solid #e5e7eb;
+      background: #f9fafb; text-align: left; cursor: pointer; font-size: 14px;
+      color: #374151; transition: all .15s; display: flex; align-items: center; gap: 12px;
+    }
+    .scale-btn.selected {
+      border-color: #6366f1; background: #eef2ff; color: #3730a3; font-weight: 700;
+    }
+    .scale-num {
+      width: 30px; height: 30px; border-radius: 50%; background: #e5e7eb;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px; flex-shrink: 0;
+    }
+    .scale-btn.selected .scale-num { background: #6366f1; color: #fff; }
+
+    /* Навигация вопросов */
+    .nav-btns { display: flex; gap: 10px; }
+    .btn-back {
+      flex: 0 0 auto; padding: 14px 20px; border-radius: 12px;
+      border: 1.5px solid #d1d5db; background: #fff;
+      font-size: 15px; font-weight: 600; cursor: pointer; color: #374151;
+    }
+    .btn-next { flex: 1; }
+
+    /* Результат */
+    .result-header {
+      border-radius: 14px; padding: 20px; margin-bottom: 20px; text-align: center;
+    }
+    .result-emoji { font-size: 48px; margin-bottom: 8px; }
+    .result-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .result-deviz { font-size: 14px; opacity: .85; font-style: italic; }
+
+    /* Полосы баллов */
+    .score-bar-wrap { margin-bottom: 10px; }
+    .score-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 4px;
+    }
+    .score-bar-track { height: 12px; background: #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .score-bar-fill  { height: 100%; border-radius: 8px; transition: width .6s ease; }
+
+    /* Блоки описания */
+    .info-block {
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 12px;
+    }
+    .info-block h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .info-block ul { padding-left: 18px; }
+    .info-block li { font-size: 14px; color: #374151; line-height: 1.6; }
+
+    .waiting-msg {
+      text-align: center; padding: 16px; background: #f0fdf4;
+      border-radius: 12px; margin-top: 16px;
+      font-size: 14px; color: #16a34a; font-weight: 600;
+    }
+
+    /* Ошибка */
+    .error-msg {
+      background: #fef2f2; color: #dc2626; border-radius: 10px;
+      padding: 12px 14px; font-size: 14px; margin-bottom: 14px;
+      display: none;
+    }
+
+    /* Скрытые / видимые экраны */
+    .screen { display: none; }
+    .screen.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>🧭 Стили коммуникации</h1>
+    <p>Пройди тест и узнай свой стиль</p>
+  </div>
+
+  <!-- ─── ЭКРАН 1: Регистрация ─────────────────────────── -->
+  <div class="card screen active" id="screen-register">
+    <h2>Привет! Как тебя зовут?</h2>
+    <p>Зарегистрируйся, чтобы начать тест.</p>
+
+    <div id="reg-error" class="error-msg"></div>
+
+    <div class="field">
+      <label for="inp-name">Имя *</label>
+      <input id="inp-name" type="text" placeholder="Например: Анна" maxlength="30" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="inp-role">Должность <span style="font-weight:400;color:#9ca3af">(необязательно)</span></label>
+      <input id="inp-role" type="text" placeholder="Например: Менеджер" maxlength="40" autocomplete="off" />
+    </div>
+
+    <button class="btn btn-primary" id="btn-register">Начать →</button>
+  </div>
+
+  <!-- ─── ЭКРАН 2: Инструкция ──────────────────────────── -->
+  <div class="card screen" id="screen-intro">
+    <h2>📋 Как проходить тест</h2>
+    <p>Тебя ждут <strong>16 утверждений</strong>. По каждому выбери, насколько оно про тебя:</p>
+    <p>от <strong>«Совсем не про меня»</strong> до <strong>«Точно про меня»</strong>.</p>
+    <p style="margin-top:8px; padding:14px; background:#f0fdf4; border-radius:10px; color:#166534;">
+      💡 Нет правильных или неправильных ответов.<br>Отвечай честно — результат будет точнее.
+    </p>
+    <br>
+    <button class="btn btn-primary" id="btn-start">Поехали! 🚀</button>
+  </div>
+
+  <!-- ─── ЭКРАН 3: Тест ────────────────────────────────── -->
+  <div class="card screen" id="screen-test">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="q-counter">Вопрос 1 из 16</span>
+        <span id="q-percent">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="question-text" id="question-text">...</div>
+
+    <div class="scale-grid" id="scale-grid"></div>
+
+    <div class="nav-btns">
+      <button class="btn-back" id="btn-back">← Назад</button>
+      <button class="btn btn-primary btn-next" id="btn-next" disabled>Далее →</button>
+    </div>
+  </div>
+
+  <!-- ─── ЭКРАН 4: Результат ───────────────────────────── -->
+  <div class="card screen" id="screen-result">
+    <div class="result-header" id="result-header">
+      <div class="result-emoji" id="result-emoji"></div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-deviz" id="result-deviz"></div>
+    </div>
+
+    <h2 style="margin-bottom:14px">Твой профиль</h2>
+    <div id="score-bars"></div>
+
+    <div id="result-description" style="margin-top:16px"></div>
+
+    <div class="waiting-msg">
+      👇 Тренер скоро покажет общую картину группы
+    </div>
+  </div>
+
+<script>
+// ─────────────────────────────────────────────────────────
+// Считываем sessionId из URL: /participant/?s=TEAM-4821
+// ─────────────────────────────────────────────────────────
+const params    = new URLSearchParams(window.location.search);
+const sessionId = params.get("s");
+
+// Если sessionId нет — показываем ошибку
+if (!sessionId) {
+  document.body.innerHTML = `
+    <div class="card" style="margin-top:40px; text-align:center;">
+      <p style="font-size:40px">🚫</p>
+      <h2 style="margin-bottom:8px">Неверная ссылка</h2>
+      <p>Отсканируй QR-код ещё раз или обратись к тренеру.</p>
+    </div>`;
+}
+
+// ── Состояние приложения ──────────────────────────────────
+let participantId = null;   // придёт с сервера после регистрации
+let questions     = [];     // придёт с /api/test-data
+let scaleLabels   = [];
+let styles        = {};     // придёт с /api/styles
+let answers       = [];     // answers[i] = значение (1–4) или null
+let currentQ      = 0;      // индекс текущего вопроса
+
+// ── Вспомогательные функции ───────────────────────────────
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function showError(elId, msg) {
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function hideError(elId) {
+  document.getElementById(elId).style.display = "none";
+}
+
+// ── Загрузка данных теста при старте ─────────────────────
+async function loadTestData() {
+  const [testRes, stylesRes] = await Promise.all([
+    fetch("/api/test-data"),
+    fetch("/api/styles")
+  ]);
+  const testData = await testRes.json();
+  questions   = testData.questions;
+  scaleLabels = testData.scaleLabels;
+  styles      = await stylesRes.json();
+  answers     = new Array(questions.length).fill(null);
+}
+
+loadTestData();
+
+// ── ЭКРАН 1: Регистрация ──────────────────────────────────
+document.getElementById("btn-register").addEventListener("click", async () => {
+  const name = document.getElementById("inp-name").value.trim();
+  const role = document.getElementById("inp-role").value.trim();
+
+  hideError("reg-error");
+
+  if (!name) {
+    showError("reg-error", "Пожалуйста, введи своё имя");
+    return;
+  }
+
+  const btn = document.getElementById("btn-register");
+  btn.disabled = true;
+  btn.textContent = "Регистрируемся...";
+
+  try {
+    const res = await fetch(`/api/session/${sessionId}/register`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ name, role })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showError("reg-error", data.error || "Ошибка регистрации");
+      btn.disabled = false;
+      btn.textContent = "Начать →";
+      return;
+    }
+
+    participantId = data.participantId;
+    showScreen("screen-intro");
+
+  } catch (e) {
+    showError("reg-error", "Нет связи с сервером. Попробуй ещё раз.");
+    btn.disabled = false;
+    btn.textContent = "Начать →";
+  }
+});
+
+// Enter в поле имени = нажать кнопку
+document.getElementById("inp-name").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("btn-register").click();
+});
+
+// ── ЭКРАН 2: Инструкция ───────────────────────────────────
+document.getElementById("btn-start").addEventListener("click", () => {
+  renderQuestion(0);
+  showScreen("screen-test");
+});
+
+// ── ЭКРАН 3: Тест ─────────────────────────────────────────
+
+function renderQuestion(index) {
+  currentQ = index;
+  const q    = questions[index];
+  const total = questions.length;
+  const pct  = Math.round((index / total) * 100);
+
+  // Прогресс
+  document.getElementById("q-counter").textContent = `Вопрос ${index + 1} из ${total}`;
+  document.getElementById("q-percent").textContent  = pct + "%";
+  document.getElementById("progress-fill").style.width = pct + "%";
+
+  // Текст вопроса
+  document.getElementById("question-text").textContent = q.text;
+
+  // Кнопки вариантов ответа
+  const grid = document.getElementById("scale-grid");
+  grid.innerHTML = "";
+  scaleLabels.forEach((label, i) => {
+    const val = i + 1; // 1–4
+    const btn = document.createElement("button");
+    btn.className = "scale-btn" + (answers[index] === val ? " selected" : "");
+    btn.innerHTML = `<span class="scale-num">${val}</span><span>${label}</span>`;
+    btn.addEventListener("click", () => selectAnswer(val));
+    grid.appendChild(btn);
+  });
+
+  // Кнопка «Далее»
+  const btnNext = document.getElementById("btn-next");
+  btnNext.disabled = answers[index] === null;
+  btnNext.textContent = index === total - 1 ? "Завершить тест ✓" : "Далее →";
+
+  // Кнопка «Назад»
+  document.getElementById("btn-back").style.display = index === 0 ? "none" : "inline-flex";
+}
+
+function selectAnswer(val) {
+  answers[currentQ] = val;
+  // Перерисовываем кнопки чтобы подсветить выбранный
+  renderQuestion(currentQ);
+}
+
+document.getElementById("btn-next").addEventListener("click", async () => {
+  if (answers[currentQ] === null) return;
+
+  if (currentQ < questions.length - 1) {
+    renderQuestion(currentQ + 1);
+  } else {
+    await submitTest();
+  }
+});
+
+document.getElementById("btn-back").addEventListener("click", () => {
+  if (currentQ > 0) renderQuestion(currentQ - 1);
+});
+
+// ── Отправка результата ───────────────────────────────────
+async function submitTest() {
+  const btn = document.getElementById("btn-next");
+  btn.disabled = true;
+  btn.textContent = "Считаем результат...";
+
+  const payload = questions.map((q, i) => ({
+    questionId: q.id,
+    value:      answers[i]
+  }));
+
+  try {
+    const res = await fetch(`/api/session/${sessionId}/submit`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ participantId, answers: payload })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Ошибка при отправке результата");
+      btn.disabled = false;
+      btn.textContent = "Завершить тест ✓";
+      return;
+    }
+
+    renderResult(data);
+    showScreen("screen-result");
+
+  } catch (e) {
+    alert("Нет связи с сервером. Попробуй ещё раз.");
+    btn.disabled = false;
+    btn.textContent = "Завершить тест ✓";
+  }
+}
+
+// ── ЭКРАН 4: Результат ────────────────────────────────────
+function renderResult(data) {
+  const { scores, primaryStyle, secondaryStyle, maxScore } = data;
+  const primary = styles[primaryStyle];
+
+  // Шапка с цветом стиля
+  const header = document.getElementById("result-header");
+  header.style.background = primary.color + "18"; // цвет с прозрачностью
+  header.style.border = `2px solid ${primary.color}40`;
+  document.getElementById("result-emoji").textContent = primary.emoji;
+  document.getElementById("result-title").textContent = "Твой стиль: " + primary.label;
+  document.getElementById("result-title").style.color = primary.color;
+  document.getElementById("result-deviz").textContent = primary.deviz;
+
+  // Полосы баллов по всем стилям
+  const barsEl = document.getElementById("score-bars");
+  barsEl.innerHTML = "";
+  const order = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  order.forEach(([code, score]) => {
+    const s   = styles[code];
+    const pct = Math.round((score / maxScore) * 100);
+    barsEl.innerHTML += `
+      <div class="score-bar-wrap">
+        <div class="score-bar-label">
+          <span>${s.emoji} ${s.label}</span>
+          <span style="color:${s.color}">${score} / ${maxScore}</span>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill" style="width:${pct}%; background:${s.color}"></div>
+        </div>
+      </div>`;
+  });
+
+  // Описание основного стиля
+  const desc = document.getElementById("result-description");
+  desc.innerHTML = `
+    <div class="info-block" style="background:${primary.color}10; border:1px solid ${primary.color}30">
+      <h3 style="color:${primary.color}">О тебе</h3>
+      <p style="font-size:14px; color:#374151; line-height:1.6">${primary.description}</p>
+    </div>
+    <div class="info-block" style="background:#f0fdf4; border:1px solid #bbf7d0">
+      <h3 style="color:#16a34a">💪 Твои сильные стороны</h3>
+      <ul>${primary.strengths.map(s => `<li>${s}</li>`).join("")}</ul>
+    </div>
+    <div class="info-block" style="background:#fef2f2; border:1px solid #fecaca">
+      <h3 style="color:#dc2626">⚠️ Слепые зоны</h3>
+      <ul>${primary.risks.map(r => `<li>${r}</li>`).join("")}</ul>
+    </div>
+    <div class="info-block" style="background:#fffbeb; border:1px solid #fde68a">
+      <h3 style="color:#d97706">🔄 Твой антипод</h3>
+      <p style="font-size:14px; color:#374151">
+        ${styles[primary.antipode].emoji} <strong>${styles[primary.antipode].label}</strong> — 
+        с этим стилем вам бывает сложно понять друг друга. 
+        Но именно это взаимодействие даёт команде баланс.
+      </p>
+    </div>`;
+}
+</script>
+</body>
+</html>

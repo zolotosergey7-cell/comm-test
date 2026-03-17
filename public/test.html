@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+<button onclick="createSession()">Создать сессию</button>
+<div id="result" style="margin-top:20px; font-size:18px"></div>
+<script>
+async function createSession() {
+  const res = await fetch("/api/session/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ groupName: "Тест" })
+  });
+  const data = await res.json();
+  document.getElementById("result").innerHTML =
+    "Session ID: <b>" + data.sessionId + "</b><br><br>" +
+    '<a href="/participant/?s=' + data.sessionId + '" target="_blank">Открыть страницу участника</a>';
+}
+</script>
+</body>
+</html>
+```
+
+Сохрани, затем открой в браузере:
+```
+http://localhost:3000/test.html

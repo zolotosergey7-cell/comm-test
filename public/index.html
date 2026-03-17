@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Стили коммуникации</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 64px;
+      margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 40px;
+      line-height: 1.5;
+    }
+
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .role-card {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 24px;
+      cursor: pointer;
+      transition: transform .2s, background .2s;
+      text-decoration: none;
+      display: block;
+    }
+
+    .role-card:hover {
+      transform: translateY(-3px);
+      background: rgba(255,255,255,0.22);
+    }
+
+    .role-card:active { transform: scale(0.98); }
+
+    .role-icon  { font-size: 36px; margin-bottom: 10px; }
+    .role-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .role-desc {
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.5;
+    }
+
+    .role-btn {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .btn-white {
+      background: #fff;
+      color: #6366f1;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.6);
+      color: #fff;
+    }
+
+    .footer {
+      margin-top: 32px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="logo">🧭</div>
+    <h1>Стили коммуникации</h1>
+    <p class="subtitle">
+      Узнай свой стиль общения и научись<br>
+      слышать других
+    </p>
+
+    <div class="cards">
+
+      <a href="/trainer/" class="role-card">
+        <div class="role-icon">🎓</div>
+        <div class="role-title">Я тренер</div>
+        <div class="role-desc">
+          Создай сессию, получи QR-код и наблюдай
+          за результатами группы в реальном времени
+        </div>
+        <div class="role-btn btn-white">Открыть панель →</div>
+      </a>
+
+      <a href="/participant/" class="role-card">
+        <div class="role-icon">👤</div>
+        <div class="role-title">Я участник</div>
+        <div class="role-desc">
+          Отсканируй QR-код тренера или введи
+          код сессии вручную чтобы пройти тест
+        </div>
+        <div class="role-btn btn-outline">Войти в сессию →</div>
+      </a>
+
+    </div>
+
+    <div class="footer">
+      Диагностика стилей коммуникации · v1.0
+    </div>
+
+  </div>
+</body>
+</html>
